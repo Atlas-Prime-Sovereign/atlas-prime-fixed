@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATLAS-PRIME - Executive Console V3.2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0e1a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: linear-gradient(180deg, #0f1420 0%, #0a0e1a 100%);
+            border-bottom: 1px solid #1a2030;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #d4af37;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .crown-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: #d4af37;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 360px;
+            background: linear-gradient(180deg, #0f1420 0%, #0a0e1a 100%);
+            border-right: 1px solid #1a2030;
+            padding: 90px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .case-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .case-selector, .persona-selector {
+            background: #1a2030;
+            border: 1px solid #2a3040;
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: #e0e0e0;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .case-selector:hover, .persona-selector:hover {
+            background: #212835;
+            border-color: #3a4050;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            flex: 1;
+            margin-top: 20px;
+        }
+
+        .nav-item {
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #9ca3af;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #1a2030;
+            color: #d4af37;
+            border-left-color: #d4af37;
+        }
+
+        .nav-item.active {
+            background: #1a2030;
+            color: #d4af37;
+            border-left-color: #d4af37;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Connections */
+        .connections-section {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #1a2030;
+        }
+
+        .connection-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .status-dot.local {
+            background: #3b82f6;
+        }
+
+        .status-dot.error {
+            background: #ef4444;
+        }
+
+        .settings-btn {
+            width: 100%;
+            background: #1a2030;
+            border: 1px solid #2a3040;
+            border-radius: 8px;
+            padding: 14px;
+            color: #9ca3af;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: #212835;
+            color: #d4af37;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 90px 30px 30px;
+            overflow-y: auto;
+        }
+
+        .chat-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .mode-header {
+            background: linear-gradient(135deg, #1a2030 0%, #0f1420 100%);
+            border: 1px solid #2a3040;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .mode-title {
+            font-size: 28px;
+            color: #d4af37;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mode-subtitle {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-indicator::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Messages */
+        .messages-area {
+            margin-bottom: 100px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            max-width: 85%;
+        }
+
+        .message.user {
+            background: #1a2030;
+            border: 1px solid #2a3040;
+            margin-left: auto;
+        }
+
+        .message.assistant {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #2a3543;
+        }
+
+        .message.error {
+            background: linear-gradient(135deg, #3f1515 0%, #2a0f0f 100%);
+            border: 1px solid #5a1e1e;
+        }
+
+        .message.success {
+            background: linear-gradient(135deg, #1a3f2a 0%, #0f2a1a 100%);
+            border: 1px solid #2a5a3a;
+        }
+
+        .message-icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Input Area */
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 360px;
+            right: 0;
+            background: linear-gradient(180deg, transparent 0%, #0a0e1a 20%);
+            padding: 20px 30px 30px;
+            transition: left 0.3s ease;
+        }
+
+        .input-container.sidebar-hidden {
+            left: 0;
+        }
+
+        .input-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            background: #1a2030;
+            border: 2px solid #2a3040;
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #e0e0e0;
+            font-size: 15px;
+            resize: none;
+            min-height: 50px;
+            max-height: 150px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: #212835;
+        }
+
+        .input-field::placeholder {
+            color: #6b7280;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 28px;
+            color: #0a0e1a;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 99;
+            }
+
+            .input-container {
+                left: 0;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .loading-dots span {
+            width: 6px;
+            height: 6px;
+            background: #d4af37;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="header-title">
+                <span class="crown-icon">👑</span>
+                ATLAS-PRIME
+            </div>
+            <div style="width: 40px;"></div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="case-section">
+                <div class="section-title">ACTIVE CASE</div>
+                <div class="case-selector">
+                    <span>Demo: Dentonia Park</span>
+                    <span>▼</span>
+                </div>
+            </div>
+
+            <div class="case-section">
+                <div class="section-title">ACTIVE PERSONA</div>
+                <div class="persona-selector">
+                    <span><span class="crown-icon">👑</span> Policy Architect</span>
+                    <span>▼</span>
+                </div>
+            </div>
+
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchMode('chat')">
+                    <span class="nav-icon">💬</span>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="switchMode('html')">
+                    <span class="nav-icon">⚡</span>
+                    <span>HTML Studio</span>
+                </div>
+                <div class="nav-item" onclick="switchMode('doc')">
+                    <span class="nav-icon">📄</span>
+                    <span>Doc Formatter</span>
+                </div>
+                <div class="nav-item" onclick="switchMode('diagram')">
+                    <span class="nav-icon">⚡</span>
+                    <span>Diagram Designer</span>
+                </div>
+            </div>
+
+            <div class="connections-section">
+                <div class="section-title">CONNECTIONS</div>
+                <div class="connection-item">
+                    <span>Gemini AI</span>
+                    <div class="connection-status">
+                        <span class="status-dot"></span>
+                        <span style="color: #10b981;">Ready</span>
+                    </div>
+                </div>
+                <div class="connection-item">
+                    <span>Firebase</span>
+                    <div class="connection-status">
+                        <span class="status-dot local"></span>
+                        <span style="color: #3b82f6;">Local</span>
+                    </div>
+                </div>
+                <div class="connection-item">
+                    <span>Rube (500+)</span>
+                    <div class="connection-status" id="rubeStatus">
+                        <span class="status-dot error"></span>
+                        <span style="color: #ef4444;">Not Connected</span>
+                    </div>
+                </div>
+
+                <button class="settings-btn" onclick="openSettings()">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="mode-header">
+                    <div class="mode-title">
+                        <span class="crown-icon">👑</span>
+                        Policy Architect Mode
+                        <span class="status-indicator">Live</span>
+                    </div>
+                    <div class="mode-subtitle">Ready to analyze governance architecture</div>
+                </div>
+
+                <div class="messages-area" id="messagesArea">
+                    <!-- Welcome message -->
+                    <div class="message assistant">
+                        <span class="message-icon">🤖</span>
+                        <strong>Atlas-Prime Policy Architect</strong> is ready. I can help you with:
+                        <ul style="margin: 12px 0 0 24px; line-height: 1.8;">
+                            <li>Governance policy analysis</li>
+                            <li>Document formatting and structuring</li>
+                            <li>HTML report generation</li>
+                            <li>Workflow diagrams and visualizations</li>
+                            <li>Integration with 500+ apps via Rube</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="input-container" id="inputContainer">
+                    <div class="input-wrapper">
+                        <textarea 
+                            class="input-field" 
+                            id="userInput" 
+                            placeholder="Ask anything..."
+                            onkeypress="handleKeyPress(event)"
+                        ></textarea>
+                        <button class="send-btn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sidebarOpen = true;
+        let isConnecting = false;
+
+        // API Configuration
+        const RUBE_API_KEY = localStorage.getItem('rube_api_key') || '';
+        const GEMINI_API_KEY = localStorage.getItem('gemini_api_key') || '';
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const inputContainer = document.getElementById('inputContainer');
+            sidebarOpen = !sidebarOpen;
+
+            if (sidebarOpen) {
+                sidebar.classList.remove('hidden');
+                inputContainer.classList.remove('sidebar-hidden');
+            } else {
+                sidebar.classList.add('hidden');
+                inputContainer.classList.add('sidebar-hidden');
+            }
+        }
+
+        // Switch mode
+        function switchMode(mode) {
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+
+            addMessage(`Switched to ${mode.toUpperCase()} mode`, 'success');
+        }
+
+        // Open settings
+        function openSettings() {
+            const geminiKey = prompt('Enter Gemini API Key:', GEMINI_API_KEY);
+            const rubeKey = prompt('Enter Rube API Key:', RUBE_API_KEY);
+
+            if (geminiKey) {
+                localStorage.setItem('gemini_api_key', geminiKey);
+                validateConnections();
+            }
+            if (rubeKey) {
+                localStorage.setItem('rube_api_key', rubeKey);
+                validateConnections();
+            }
+        }
+
+        // Validate connections
+        async function validateConnections() {
+            const rubeStatus = document.getElementById('rubeStatus');
+
+            if (RUBE_API_KEY) {
+                rubeStatus.innerHTML = '<span class="status-dot"></span><span style="color: #10b981;">Ready</span>';
+                addMessage('✅ Rube connection validated successfully!', 'success');
+            } else {
+                rubeStatus.innerHTML = '<span class="status-dot error"></span><span style="color: #ef4444;">Not Connected</span>';
+            }
+        }
+
+        // Add message to chat
+        function addMessage(text, type = 'assistant') {
+            const messagesArea = document.getElementById('messagesArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            if (type === 'user') {
+                messageDiv.innerHTML = `<span class="message-icon">👤</span>${text}`;
+            } else if (type === 'error') {
+                messageDiv.innerHTML = `<span class="message-icon">❌</span>${text}`;
+            } else if (type === 'success') {
+                messageDiv.innerHTML = `<span class="message-icon">✅</span>${text}`;
+            } else {
+                messageDiv.innerHTML = `<span class="message-icon">🤖</span>${text}`;
+            }
+
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Show user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Check API keys
+            if (!GEMINI_API_KEY && !RUBE_API_KEY) {
+                addMessage('❌ Please configure your API keys in Settings first.', 'error');
+                return;
+            }
+
+            // Show loading
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant';
+            loadingDiv.id = 'loading';
+            loadingDiv.innerHTML = '<span class="message-icon">🤖</span>Thinking<span class="loading-dots"><span></span><span></span><span></span></span>';
+            document.getElementById('messagesArea').appendChild(loadingDiv);
+
+            // Simulate API call (replace with actual Rube/Gemini API)
+            setTimeout(() => {
+                document.getElementById('loading').remove();
+                addMessage(`I received your message: "${message}". This is a demo response. To enable full functionality, integrate with Gemini and Rube APIs.`, 'assistant');
+            }, 1500);
+        }
+
+        // Handle Enter key
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            validateConnections();
+        };
+    </script>
+</body>
+</html>
